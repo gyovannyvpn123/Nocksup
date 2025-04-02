@@ -1,73 +1,123 @@
-# Nocksup - Biblioteca WhatsApp pentru Python
+# Nocksup - Python Library for WhatsApp
 
-Nocksup este o bibliotecă Python modernă pentru comunicarea cu WhatsApp, compatibilă cu protocoalele actuale WhatsApp. Această bibliotecă a fost dezvoltată pentru a rezolva problemele întâlnite cu alte biblioteci precum Yowsup, care nu mai sunt compatibile cu versiunile actuale ale WhatsApp.
+Nocksup is a modern Python library for WhatsApp communication, developed as a replacement for Yowsup.
 
-## Caracteristici
+## Features
 
-- Compatibilitate cu protocoalele actuale WhatsApp
-- Suport pentru autentificare multi-device
-- Autentificare prin QR code sau pairing code
-- Trimitere și primire de mesaje text și media
-- Gestionare contacte și grupuri
-- Arhitectură modulară, extensibilă
+- Compatible with current WhatsApp protocols (2025 update)
+- Support for QR code or pairing code authentication
+- Send and receive text messages
+- Robust WebSocket connection management
+- Support for multiple devices and persistent sessions
+- Compatible with Termux on Android devices
 
-## Instalare
+## Installation
 
 ```bash
-pip install cryptography requests websocket-client protobuf
-git clone https://github.com/gyovannyvpn123/Nocksup.git
-cd Nocksup
+pip install nocksup
 ```
 
-## Utilizare rapidă
+Or install from source:
+
+```bash
+git clone https://github.com/gyovannyvpn123/Nocksup.git
+cd Nocksup
+pip install -e .
+```
+
+## Basic Usage
+
+### Connect with QR Code
 
 ```python
-from nocksup import NocksupClient
+from nocksup.client.client import NocksupClient
 
-# Creare client
-client = NocksupClient()
+# Create a client with your phone number
+client = NocksupClient(phone_number="1234567890")
 
-# Setare număr de telefon
-client.set_phone_number("401234567890")
+# Callback for received messages
+def on_message(message):
+    print(f"Message received from {message.get('sender')}: {message.get('text')}")
 
-# Conectare cu pairing code (recomandat pentru Termux și CLI)
-print("Deschide WhatsApp pe telefon:")
-print("Setări > Dispozitive conectate > Conectează un dispozitiv > Nu poți scana codul QR?")
-pairing_code = input("Introdu codul de asociere din 8 cifre: ")
-client.connect(restore_session=False, auth_method="pairing_code", pairing_code=pairing_code)
+# Callback for QR code
+def on_qr_code(qr_data):
+    print("Scan this QR code with WhatsApp on your phone")
+    # In real applications, you might display the QR code here
 
-# Sau conectare cu QR code (recomandat pentru desktop)
-# client.connect(restore_session=False, auth_method="qr")
-# print("Scanează codul QR din aplicația WhatsApp")
+# Register the callbacks
+client.on_message(on_message)
+client.on_qr_code(on_qr_code)
 
-# Trimitere mesaj text
-client.send_text_message("401234567890", "Salut de la Nocksup!")
+# Connect using QR code
+client.connect(auth_method='qr')
 
-# Deconectare
-client.disconnect()
+if client.is_connected():
+    # Send a message
+    client.send_text_message("1234567890", "Hello from Nocksup!")
+    
+    # Keep the application running to receive messages
+    try:
+        while client.is_connected():
+            pass
+    except KeyboardInterrupt:
+        client.disconnect()
 ```
 
-## Exemplu complet
+### Connect with Pairing Code
 
-Vezi fișierul `examples/simple_client.py` pentru un exemplu complet.
+```python
+from nocksup.client.client import NocksupClient
 
-## Compatibilitate
+# Create a client with your phone number
+client = NocksupClient(phone_number="1234567890")
 
-Biblioteca a fost testată cu versiunile curente ale WhatsApp (2023-2024) și include actualizări de protocol pentru a preveni erori precum "bad_baram".
+# Callback for pairing code
+def on_pairing_code(code):
+    print(f"Enter this code in WhatsApp: {code}")
 
-## Utilizare pe Termux
+# Register the callback
+client.on_pairing_code(on_pairing_code)
 
-Biblioteca funcționează perfect pe Termux (Android):
+# Generate the pairing code
+pairing_code = client.generate_pairing_code()
 
-```bash
-pkg update && pkg upgrade
-pkg install python
-pip install cryptography requests websocket-client protobuf
-git clone https://github.com/gyovannyvpn123/Nocksup.git
-cd Nocksup
-python examples/simple_client.py
+# Connect using the pairing code
+client.connect(auth_method='pairing_code')
+
+if client.is_connected():
+    print("Successfully connected!")
+    # Code for sending messages...
+    
+    client.disconnect()
 ```
 
-## Licență
+## Troubleshooting
 
-MIT License
+### Common Issues
+
+1. **Connection errors**: Make sure you have a stable internet connection. The library will automatically attempt to reconnect.
+
+2. **Authentication error**: Scan the QR code or enter the pairing code in the WhatsApp app on your phone.
+
+3. **bad_baram error**: This error that occurs in other libraries has been resolved in Nocksup by updating the communication protocols.
+
+4. **Unicode character errors**: Nocksup uses robust UTF-8 decoding to handle messages in any language.
+
+### Debugging
+
+To enable debug logs:
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+## Current Limitations
+
+- Support for audio/video calls is still in development
+- Group message support is in beta
+- Media message sending is still in development
+
+## Legal Notes
+
+This library is not affiliated with or officially endorsed by WhatsApp. Its use should comply with WhatsApp's terms and conditions.
