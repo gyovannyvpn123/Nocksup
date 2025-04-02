@@ -11,11 +11,9 @@ Main components:
 - Connection management
 """
 
-__version__ = '0.1.0'
-
-from nocksup.client.client import NocksupClient
+__version__ = '0.2.0'
 
 # For more convenient imports
-from nocksup.messaging.message import Message, MessageType
+from nocksup.client.client import NocksupClient
 
-__all__ = ['NocksupClient', 'Message', 'MessageType']
+__all__ = ['NocksupClient']
