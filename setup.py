@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="nocksup",
-    version="0.1.0",
+    version="0.2.0",
     packages=find_packages(),
     install_requires=[
         "cryptography",
@@ -12,7 +12,7 @@ setup(
     ],
     author="gyovannyvpn123",
     author_email="mdanut159@gmail.com",
-    description="O bibliotecă Python pentru comunicarea cu WhatsApp compatibilă cu protocoalele actuale.",
+    description="A Python library for WhatsApp communication compatible with current protocols.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/gyovannyvpn123/Nocksup",
